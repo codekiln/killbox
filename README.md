@@ -12,7 +12,7 @@ mise install
 
 Killbox is initialized as a Unity 2D project shell for an ugly one-map cooperative action tower-defense prototype.
 
-Expected editor: Unity 2022.3 LTS or a newer 2D-capable LTS editor.
+Expected editor: Unity `6000.0.40f1`, installed through Unity Hub. `ProjectSettings/ProjectVersion.txt` is the source of truth.
 
 Open the repository root in Unity Hub:
 
@@ -42,5 +42,9 @@ mise run openspec -- status --change initialize-unity-2d-project
 ```sh
 mise run status
 mise run spec-check
-mise run clean-unity-generated
+mise run unity:doctor
+mise run unity:open
+mise run unity:batch-check
+mise run clean-unity-cache
+mise run clean-unity-builds
 ```

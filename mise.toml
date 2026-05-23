@@ -1,6 +1,9 @@
 #:schema https://mise.en.dev/schema/mise.json
 min_version = "2026.5.3"
 
+[env]
+UNITY_VERSION = "6000.0.40f1"
+
 [settings]
 lockfile = true
 npm.package_manager = "npm"
@@ -29,6 +32,48 @@ run = "git status --short --branch"
 description = "Validate OpenSpec changes and specs"
 run = "openspec validate --all --strict --no-interactive"
 
+[tasks."unity:doctor"]
+description = "Check Unity Hub and the pinned Unity editor install"
+run = '''
+set -eu
+UNITY_EDITOR="/Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity"
+
+echo "Expected Unity editor: $UNITY_VERSION"
+
+if command -v unityhub >/dev/null 2>&1; then
+  echo "Unity Hub CLI: $(command -v unityhub)"
+else
+  echo "Unity Hub CLI not found on PATH. Install/open Unity Hub and add editor $UNITY_VERSION."
+fi
+
+if [ -x "$UNITY_EDITOR" ]; then
+  "$UNITY_EDITOR" -version
+else
+  echo "Unity editor not found at: $UNITY_EDITOR"
+  exit 1
+fi
+'''
+
+[tasks."unity:open"]
+description = "Open this project in Unity Hub"
+run = 'open -a "Unity Hub" .'
+
+[tasks."unity:batch-check"]
+description = "Run Unity in batchmode long enough to compile and load the project"
+run = '''
+set -eu
+UNITY_EDITOR="/Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity"
+"$UNITY_EDITOR" -batchmode -nographics -projectPath "$PWD" -quit -logFile -
+'''
+
+[tasks."clean-unity-cache"]
+description = "Remove local Unity generated cache folders"
+run = "rm -rf Library Temp Obj Logs UserSettings"
+
+[tasks."clean-unity-builds"]
+description = "Remove local Unity build output folders"
+run = "rm -rf Build Builds"
+
 [tasks."clean-unity-generated"]
-description = "Remove common local Unity generated folders and build outputs"
-run = "rm -rf Library Temp Obj Logs UserSettings Build Builds"
+description = "Alias for clean-unity-cache; build cleanup is intentionally separate"
+run = "mise run clean-unity-cache"
