@@ -36,14 +36,29 @@ run = "openspec validate --all --strict --no-interactive"
 description = "Check Unity Hub and the pinned Unity editor install"
 run = '''
 set -eu
+UNITY_HUB_APP="/Applications/Unity Hub.app"
+UNITY_HUB_BIN="$UNITY_HUB_APP/Contents/MacOS/Unity Hub"
 UNITY_EDITOR="/Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity"
 
 echo "Expected Unity editor: $UNITY_VERSION"
 
-if command -v unityhub >/dev/null 2>&1; then
-  echo "Unity Hub CLI: $(command -v unityhub)"
+if [ -d "$UNITY_HUB_APP" ]; then
+  echo "Unity Hub app: $UNITY_HUB_APP"
 else
-  echo "Unity Hub CLI not found on PATH. Install/open Unity Hub and add editor $UNITY_VERSION."
+  echo "Unity Hub app not found. Install it with: brew install --cask unity-hub"
+fi
+
+if [ -x "$UNITY_HUB_BIN" ]; then
+  echo "Unity Hub executable: $UNITY_HUB_BIN"
+else
+  echo "Unity Hub executable not found at: $UNITY_HUB_BIN"
+fi
+
+if command -v unityhub >/dev/null 2>&1; then
+  echo "Optional unityhub CLI symlink: $(command -v unityhub)"
+else
+  echo "Optional unityhub CLI symlink not found on PATH."
+  echo "Optional symlink: sudo ln -s \"$UNITY_HUB_BIN\" /usr/local/bin/unityhub"
 fi
 
 if [ -x "$UNITY_EDITOR" ]; then

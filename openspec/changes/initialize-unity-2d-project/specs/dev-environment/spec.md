@@ -14,7 +14,7 @@ The repository SHALL document how to open the Unity project and what Unity versi
 #### Scenario: New developer setup
 - **GIVEN** a developer has cloned the repository
 - **WHEN** they read the README
-- **THEN** they SHALL understand how to open the Unity project and run the prototype scene
+- **THEN** they SHALL understand how to install Unity Hub with Homebrew, install the pinned Unity editor, open the project, and run the prototype scene
 
 ### Requirement: Unity editor verification
 The repository SHALL expose a mise task that verifies the pinned Unity editor version expected by the project.

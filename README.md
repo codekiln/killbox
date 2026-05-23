@@ -14,11 +14,32 @@ Killbox is initialized as a Unity 2D project shell for an ugly one-map cooperati
 
 Expected editor: Unity `6000.0.40f1`, installed through Unity Hub. `ProjectSettings/ProjectVersion.txt` is the source of truth.
 
+On macOS, install Unity Hub with Homebrew:
+
+```sh
+brew install --cask unity-hub
+open -a "Unity Hub"
+```
+
+Inside Unity Hub, sign in and install editor `6000.0.40f1`. Start with Mac Build Support; add WebGL, Android, or iOS modules later when the prototype needs them.
+
 Open the repository root in Unity Hub:
 
 1. Add this folder as an existing project.
 2. Open scene `Assets/_Killbox/Scenes/PrototypeArena.unity`.
 3. Keep generated folders such as `Library/`, `Temp/`, `Obj/`, `Logs/`, and `UserSettings/` untracked.
+
+Unity Hub installs editors under `/Applications/Unity/Hub/Editor/`. The pinned editor executable is expected at:
+
+```text
+/Applications/Unity/Hub/Editor/6000.0.40f1/Unity.app/Contents/MacOS/Unity
+```
+
+Optional Hub CLI symlink:
+
+```sh
+sudo ln -s "/Applications/Unity Hub.app/Contents/MacOS/Unity Hub" /usr/local/bin/unityhub
+```
 
 The first slice intentionally contains no gameplay implementation. Architecture notes live at `Assets/_Killbox/Docs/ARCHITECTURE.md`.
 
