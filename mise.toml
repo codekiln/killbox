@@ -1,0 +1,22 @@
+#:schema https://mise.en.dev/schema/mise.json
+min_version = "2026.5.3"
+
+[settings]
+lockfile = true
+npm.package_manager = "npm"
+
+[tools]
+node = "lts"
+"npm:@fission-ai/openspec" = "latest"
+
+[tasks.openspec]
+description = "Run the OpenSpec CLI"
+run = "openspec"
+
+[tasks."openspec:check"]
+description = "Check OpenSpec project state"
+run = "openspec check"
+
+[tasks."openspec:help"]
+description = "Show OpenSpec CLI help"
+run = "openspec --help"

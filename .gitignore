@@ -1,0 +1,12 @@
+# Local mise overrides and generated local lockfiles stay machine-specific.
+mise.local.toml
+mise.*.local.toml
+mise.local.lock
+mise.*.local.lock
+
+# Common local-only files.
+.env
+.env.*
+!.env.example
+node_modules/
+.DS_Store
