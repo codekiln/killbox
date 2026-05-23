@@ -10,3 +10,46 @@ mise.*.local.lock
 !.env.example
 node_modules/
 .DS_Store
+
+# Unity generated folders.
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# Unity generated files.
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+sysinfo.txt
+
+# Unity crash/debug output.
+*.stackdump
+*.log
+
+# Unity asset store tools and local IDE state.
+Assets/AssetStoreTools*
+.vs/
+.vscode/
+.idea/
+
+# Build artifacts.
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.ipa

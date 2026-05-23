@@ -20,3 +20,15 @@ run = "openspec check"
 [tasks."openspec:help"]
 description = "Show OpenSpec CLI help"
 run = "openspec --help"
+
+[tasks.status]
+description = "Show repository status"
+run = "git status --short --branch"
+
+[tasks."spec-check"]
+description = "Validate OpenSpec changes and specs"
+run = "openspec validate --all --strict --no-interactive"
+
+[tasks."clean-unity-generated"]
+description = "Remove common local Unity generated folders and build outputs"
+run = "rm -rf Library Temp Obj Logs UserSettings Build Builds"
