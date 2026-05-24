@@ -15,6 +15,8 @@ const colors = {
   objective: 0xd95d5d,
   padOpen: 0xf5f0df,
   padOccupied: 0x79c26d,
+  enemy: 0xf5f0df,
+  enemyCore: 0xd95d5d,
   playerOne: 0x7ed7ff,
   playerTwo: 0xb88cff,
   text: "#f5f0df",
@@ -66,6 +68,7 @@ export class PrototypeScene extends Phaser.Scene {
     for (const path of state.paths) {
       this.drawPath(path.id, path.entrance, path.waypoints);
     }
+    this.drawEnemies(state.enemies);
     this.drawBuildPads(state.buildPads);
     this.drawObjective(state.objective.position);
     this.drawPlayers(state.players);
@@ -74,8 +77,8 @@ export class PrototypeScene extends Phaser.Scene {
     this.hudText?.setText([
       `Objective ${state.objective.currentHp}/${state.objective.maxHp}`,
       `Shared gold ${state.sharedGold}`,
-      `Wave ${state.wave.index} ${state.wave.active ? "active" : "ready"}`,
-      `Session ${state.sessionId}`
+      `Wave ${state.wave.index} ${this.formatWaveLabel(state.wave)}`,
+      `Enemies ${state.wave.enemiesRemaining} active / ${state.wave.enemiesLeaked} leaked`
     ]);
     this.logText?.setText(state.messageLog.join("\n"));
     syncDebugDom(describeGameState(state));
@@ -136,6 +139,28 @@ export class PrototypeScene extends Phaser.Scene {
     }
   }
 
+  private drawEnemies(enemies: GameState["enemies"]): void {
+    const graphics = this.requireGraphics();
+
+    for (const enemy of enemies) {
+      graphics.fillStyle(colors.enemy, 1);
+      graphics.lineStyle(3, colors.enemyCore, 1);
+      graphics.fillCircle(enemy.position.x, enemy.position.y, 15);
+      graphics.strokeCircle(enemy.position.x, enemy.position.y, 15);
+
+      graphics.fillStyle(colors.enemyCore, 1);
+      graphics.fillCircle(enemy.position.x, enemy.position.y, 6);
+
+      this.addLabel(
+        enemy.position.x - 26,
+        enemy.position.y - 34,
+        `${enemy.id.replace("wave-1-", "")}`,
+        12,
+        colors.text
+      );
+    }
+  }
+
   private drawObjective(position: Vec2): void {
     const graphics = this.requireGraphics();
     graphics.fillStyle(colors.objective, 0.95);
@@ -175,6 +200,14 @@ export class PrototypeScene extends Phaser.Scene {
       throw new Error("PrototypeScene graphics not initialized");
     }
     return this.graphics;
+  }
+
+  private formatWaveLabel(wave: GameState["wave"]): string {
+    if (wave.completed) {
+      return "complete";
+    }
+
+    return wave.active ? "active" : "ready";
   }
 }
 

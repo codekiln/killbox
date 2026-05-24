@@ -12,7 +12,23 @@ export interface KillboxDebugState {
     index: number;
     active: boolean;
     enemiesRemaining: number;
+    enemiesSpawned: number;
+    enemiesLeaked: number;
+    completed: boolean;
   };
+  enemies: Array<{
+    id: string;
+    pathId: string;
+    position: {
+      x: number;
+      y: number;
+    };
+    hp: string;
+    status: string;
+    progress: number;
+  }>;
+  activeEnemyCount: number;
+  enemyPaths: Record<string, number>;
   buildPads: Array<{
     id: string;
     occupied: boolean;
@@ -43,11 +59,24 @@ export function describeGameState(
     activePlayers: state.players.filter((player) => player.connected).length,
     objectiveHp: `${state.objective.currentHp}/${state.objective.maxHp}`,
     wave: { ...state.wave },
+    enemies: state.enemies.map((enemy) => ({
+      id: enemy.id,
+      pathId: enemy.pathId,
+      position: { ...enemy.position },
+      hp: `${enemy.currentHp}/${enemy.maxHp}`,
+      status: enemy.status,
+      progress: enemy.progress
+    })),
+    activeEnemyCount: state.enemies.length,
+    enemyPaths: state.enemies.reduce<Record<string, number>>((counts, enemy) => {
+      counts[enemy.pathId] = (counts[enemy.pathId] ?? 0) + 1;
+      return counts;
+    }, {}),
     buildPads: state.buildPads.map((pad) => ({
       id: pad.id,
       occupied: Boolean(pad.occupiedBy)
     })),
-    controls: ["player:set-ready", "build-pad:toggle", "wave:set-active"]
+    controls: ["player:set-ready", "build-pad:toggle", "wave:set-active", "simulation:tick"]
   };
 }
 
@@ -59,7 +88,11 @@ export function installDebugApi(
   const api: KillboxDebugApi = {
     getState: () => getSerializableSnapshot(getState()),
     describe: () => describeGameState(getState(), deploymentVersion),
-    dispatch: (command) => getSerializableSnapshot(dispatch(command))
+    dispatch: (command) => {
+      const snapshot = getSerializableSnapshot(dispatch(command));
+      syncDebugDom(api.describe());
+      return snapshot;
+    }
   };
 
   if (typeof window !== "undefined") {
@@ -85,6 +118,8 @@ export function syncDebugDom(debugState: KillboxDebugState): void {
     app.dataset.killboxSession = debugState.sessionId;
     app.dataset.killboxPlayers = String(debugState.activePlayers);
     app.dataset.killboxWave = debugState.wave.active ? "active" : "idle";
+    app.dataset.killboxEnemies = String(debugState.activeEnemyCount);
+    app.dataset.killboxObjectiveHp = debugState.objectiveHp;
   }
 
   if (deploymentVersion) {
@@ -99,8 +134,17 @@ export function syncDebugDom(debugState: KillboxDebugState): void {
       `Scene: ${debugState.scene}`,
       `Players: ${debugState.activePlayers}/2`,
       `Objective: ${debugState.objectiveHp}`,
-      `Wave: ${debugState.wave.active ? "active" : "idle"} (${debugState.wave.enemiesRemaining})`,
+      `Wave: ${formatWaveState(debugState)}`,
+      `Enemies: ${debugState.activeEnemyCount} active, ${debugState.wave.enemiesLeaked} leaked`,
       `Build pads: ${occupied}/${debugState.buildPads.length}`
     ].join("\n");
   }
+}
+
+function formatWaveState(debugState: KillboxDebugState): string {
+  if (debugState.wave.completed) {
+    return `complete (${debugState.wave.enemiesRemaining})`;
+  }
+
+  return `${debugState.wave.active ? "active" : "idle"} (${debugState.wave.enemiesRemaining})`;
 }
