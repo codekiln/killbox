@@ -36,6 +36,10 @@ mise run spec-check
 mise run check
 ```
 
+## Reference Docs
+
+Shared Killbox terminology lives in the markdown reference docs at [docs/reference](docs/reference/README.md). Use the [glossary](docs/reference/glossary.md) for canonical definitions of recurring game and development terms.
+
 ## OpenSpec
 
 OpenSpec is installed by mise from the npm package `@fission-ai/openspec`.
