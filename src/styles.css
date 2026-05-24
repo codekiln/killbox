@@ -46,6 +46,22 @@ body {
   height: 100%;
 }
 
+#deployment-version {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 1;
+  margin: 0;
+  padding: 6px 8px;
+  border: 1px solid rgba(245, 240, 223, 0.24);
+  border-radius: 6px;
+  background: rgba(18, 20, 24, 0.78);
+  color: #f5f0df;
+  font-size: 12px;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
 #semantic-state {
   position: absolute;
   right: 16px;
@@ -71,5 +87,10 @@ body {
     right: 10px;
     bottom: 10px;
     font-size: 12px;
+  }
+
+  #deployment-version {
+    left: 10px;
+    bottom: 10px;
   }
 }

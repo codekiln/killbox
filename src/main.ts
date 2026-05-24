@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import "./styles.css";
+import { getDeploymentVersion } from "./deployment";
 import { installDebugApi } from "./game/debug";
 import { applyGameCommand, createInitialGameState } from "./game/state";
 import type { GameCommand, GameState } from "./game/state";
@@ -7,6 +8,7 @@ import { MockSessionTransport } from "./net/transport";
 import { PrototypeScene, prototypeSceneSize } from "./scenes/PrototypeScene";
 
 let gameState: GameState = createInitialGameState("local-mock");
+const deploymentVersion = getDeploymentVersion();
 const transport = new MockSessionTransport(gameState.sessionId);
 
 function dispatch(command: GameCommand): GameState {
@@ -21,7 +23,7 @@ function dispatch(command: GameCommand): GameState {
   return gameState;
 }
 
-installDebugApi(() => gameState, dispatch);
+installDebugApi(() => gameState, dispatch, deploymentVersion);
 void transport.connect();
 
 new Phaser.Game({

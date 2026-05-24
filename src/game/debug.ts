@@ -1,7 +1,9 @@
+import { getDeploymentVersion } from "../deployment";
 import type { GameCommand, GameState, GameStateSnapshot } from "./state";
 import { getSerializableSnapshot } from "./state";
 
 export interface KillboxDebugState {
+  deploymentVersion: string;
   scene: GameState["scene"];
   sessionId: string;
   activePlayers: number;
@@ -30,8 +32,12 @@ declare global {
   }
 }
 
-export function describeGameState(state: GameState): KillboxDebugState {
+export function describeGameState(
+  state: GameState,
+  deploymentVersion = getDeploymentVersion()
+): KillboxDebugState {
   return {
+    deploymentVersion,
     scene: state.scene,
     sessionId: state.sessionId,
     activePlayers: state.players.filter((player) => player.connected).length,
@@ -47,11 +53,12 @@ export function describeGameState(state: GameState): KillboxDebugState {
 
 export function installDebugApi(
   getState: () => GameState,
-  dispatch: (command: GameCommand) => GameState
+  dispatch: (command: GameCommand) => GameState,
+  deploymentVersion = getDeploymentVersion()
 ): KillboxDebugApi {
   const api: KillboxDebugApi = {
     getState: () => getSerializableSnapshot(getState()),
-    describe: () => describeGameState(getState()),
+    describe: () => describeGameState(getState(), deploymentVersion),
     dispatch: (command) => getSerializableSnapshot(dispatch(command))
   };
 
@@ -69,18 +76,26 @@ export function syncDebugDom(debugState: KillboxDebugState): void {
   }
 
   const app = document.querySelector<HTMLElement>("#app");
+  const deploymentVersion = document.querySelector<HTMLElement>("#deployment-version");
   const semanticState = document.querySelector<HTMLElement>("#semantic-state");
 
   if (app) {
+    app.dataset.killboxVersion = debugState.deploymentVersion;
     app.dataset.killboxScene = debugState.scene;
     app.dataset.killboxSession = debugState.sessionId;
     app.dataset.killboxPlayers = String(debugState.activePlayers);
     app.dataset.killboxWave = debugState.wave.active ? "active" : "idle";
   }
 
+  if (deploymentVersion) {
+    deploymentVersion.textContent = `Version ${debugState.deploymentVersion}`;
+    deploymentVersion.dataset.killboxVersion = debugState.deploymentVersion;
+  }
+
   if (semanticState) {
     const occupied = debugState.buildPads.filter((pad) => pad.occupied).length;
     semanticState.textContent = [
+      `Version: ${debugState.deploymentVersion}`,
       `Scene: ${debugState.scene}`,
       `Players: ${debugState.activePlayers}/2`,
       `Objective: ${debugState.objectiveHp}`,
