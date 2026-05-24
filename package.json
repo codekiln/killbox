@@ -10,7 +10,9 @@
     "lint": "tsc --noEmit --pretty false",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "npm run test:e2e:local",
+    "test:e2e:local": "npm run build && playwright test",
+    "test:e2e:public": "playwright test",
     "spec-check": "openspec validate --all --strict --no-interactive",
     "check": "npm run lint && npm run test && npm run build && npm run spec-check"
   },

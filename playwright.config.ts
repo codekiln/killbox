@@ -1,18 +1,26 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const publicBaseURL = process.env.KILLBOX_PUBLIC_BASE_URL?.trim();
+const localBaseURL = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:4173";
+const baseURL = publicBaseURL || localBaseURL;
+
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL,
     trace: "on-first-retry"
   },
-  webServer: {
-    command: "npm run preview",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: true
-  },
+  ...(publicBaseURL
+    ? {}
+    : {
+        webServer: {
+          command: "npm run preview",
+          url: localBaseURL,
+          reuseExistingServer: true
+        }
+      }),
   projects: [
     {
       name: "chromium",

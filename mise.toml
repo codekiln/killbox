@@ -37,6 +37,14 @@ run = "npm run test"
 description = "Run Playwright browser tests"
 run = "npm run test:e2e"
 
+[tasks."test:e2e:local"]
+description = "Build and verify the production preview with Playwright"
+run = "npm run test:e2e:local"
+
+[tasks."test:e2e:public"]
+description = "Verify a published Pages deployment with Playwright"
+run = "npm run test:e2e:public"
+
 [tasks.openspec]
 description = "Run the OpenSpec CLI"
 run = "openspec"
