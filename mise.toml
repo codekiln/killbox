@@ -51,7 +51,7 @@ run = "openspec"
 
 [tasks."openspec:check"]
 description = "Check OpenSpec project state"
-run = "openspec check"
+run = "openspec validate --all --strict --no-interactive"
 
 [tasks."openspec:help"]
 description = "Show OpenSpec CLI help"

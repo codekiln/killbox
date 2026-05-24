@@ -1,20 +1,45 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Killbox is a browser-playable cooperative action tower-defense prototype.
+  The active implementation is TypeScript, Vite, and Phaser.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Current prototype direction:
+  - Build an ugly, one-map, browser-playable, AI-verifiable vertical slice before final art, campaign systems, progression, monetization, or production networking.
+  - The first playable loop should prove active hero combat, fixed-pad tower defense, shared team economy, scripted waves, one defended objective, and remote-coop-shaped session flow.
+  - Multiplayer work should favor browser-testable remote session flows over same-device local co-op.
+  - The static GitHub Pages client must still load without a backend relay.
+
+  Important source areas:
+  - src/main.ts boots Phaser, installs the debug API, and wires local mock transport.
+  - src/game/state.ts owns serializable game state and command application.
+  - src/game/debug.ts exposes window.__KILLBOX_DEBUG__ for browser automation.
+  - src/net/transport.ts defines the transport abstraction and mock transport.
+  - src/scenes/PrototypeScene.ts renders the current prototype scene.
+  - tests/ covers state, debug API, and transport behavior.
+
+  Existing consolidated specs in openspec/specs/ describe current intended behavior.
+  Future behavior changes should be proposed under openspec/changes/<change-name>/,
+  reviewed, implemented, and archived back into consolidated specs when complete.
+
+rules:
+  proposal:
+    - Keep proposals scoped to one coherent prototype increment.
+    - Explain why this increment is the next best step toward the playable co-op loop.
+    - Separate current implementation facts from desired future behavior.
+    - List affected existing capabilities from openspec/specs/ when requirements change.
+    - Include explicit non-goals when a tempting adjacent feature is deferred.
+  specs:
+    - Use consolidated spec names from openspec/specs/ for modified capabilities.
+    - Create a new capability only when the behavior does not fit an existing spec.
+    - Requirements describe observable WHAT/WHY behavior, not implementation mechanics.
+    - Keep implementation details in design.md or tasks.md unless they are externally observable behavior.
+    - Include scenarios that can be validated through browser state, tests, or user-visible prototype behavior.
+  design:
+    - Prefer small changes that preserve the TypeScript/Vite/Phaser structure already in src/.
+    - Describe how serializable game state, Phaser rendering, debug state, and tests stay aligned.
+    - Call out risks around deterministic tests, browser automation, and future networking.
+  tasks:
+    - Order tasks by dependency and keep each task independently reviewable.
+    - Include validation tasks for unit tests, build, and OpenSpec validation when relevant.
+    - Avoid broad refactors unless they are necessary for the proposed behavior.
