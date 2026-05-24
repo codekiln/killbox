@@ -15,6 +15,9 @@ const colors = {
   objective: 0xd95d5d,
   padOpen: 0xf5f0df,
   padOccupied: 0x79c26d,
+  controlFill: 0x2e4f45,
+  controlStroke: 0xf5f0df,
+  controlDisabled: 0x3b403d,
   enemy: 0xf5f0df,
   enemyCore: 0xd95d5d,
   playerOne: 0x7ed7ff,
@@ -73,6 +76,7 @@ export class PrototypeScene extends Phaser.Scene {
     this.drawObjective(state.objective.position);
     this.drawPlayers(state.players);
     this.drawLabels();
+    this.drawWaveControl(state.wave);
 
     this.hudText?.setText([
       `Objective ${state.objective.currentHp}/${state.objective.maxHp}`,
@@ -137,6 +141,39 @@ export class PrototypeScene extends Phaser.Scene {
       });
       this.labelGroup?.add(hit);
     }
+  }
+
+  private drawWaveControl(wave: GameState["wave"]): void {
+    const graphics = this.requireGraphics();
+    const x = 1092;
+    const y = 18;
+    const width = 154;
+    const height = 36;
+    const canStart = !wave.active && !wave.completed;
+
+    graphics.fillStyle(canStart ? colors.controlFill : colors.controlDisabled, canStart ? 0.95 : 0.65);
+    graphics.lineStyle(2, colors.controlStroke, canStart ? 1 : 0.45);
+    graphics.fillRoundedRect(x, y, width, height, 6);
+    graphics.strokeRoundedRect(x, y, width, height, 6);
+
+    const label = this.add.text(x + width / 2, y + height / 2, this.formatWaveControlLabel(wave), {
+      color: canStart ? colors.text : colors.mutedText,
+      fontFamily: "Inter, system-ui, sans-serif",
+      fontSize: "15px"
+    });
+    label.setOrigin(0.5);
+    this.labelGroup?.add(label);
+
+    if (!canStart) {
+      return;
+    }
+
+    const hit = this.add.zone(x + width / 2, y + height / 2, width, height).setInteractive({ cursor: "pointer" });
+    hit.once("pointerdown", () => {
+      this.dispatch({ type: "wave:set-active", active: true });
+      this.renderState();
+    });
+    this.labelGroup?.add(hit);
   }
 
   private drawEnemies(enemies: GameState["enemies"]): void {
@@ -208,6 +245,14 @@ export class PrototypeScene extends Phaser.Scene {
     }
 
     return wave.active ? "active" : "ready";
+  }
+
+  private formatWaveControlLabel(wave: GameState["wave"]): string {
+    if (wave.completed) {
+      return "Wave Complete";
+    }
+
+    return wave.active ? "Wave Active" : "Start Wave";
   }
 }
 
