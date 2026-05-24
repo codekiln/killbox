@@ -1,16 +1,41 @@
 #:schema https://mise.en.dev/schema/mise.json
 min_version = "2026.5.3"
 
-[env]
-UNITY_VERSION = "6000.0.40f1"
-
 [settings]
 lockfile = true
 npm.package_manager = "npm"
 
 [tools]
-node = "lts"
+node = "24"
 "npm:@fission-ai/openspec" = "latest"
+
+[tasks.install]
+description = "Install web prototype dependencies"
+run = "npm install"
+
+[tasks.dev]
+description = "Run the Vite development server"
+run = "npm run dev"
+
+[tasks.build]
+description = "Build the static browser prototype"
+run = "npm run build"
+
+[tasks.preview]
+description = "Preview the production build locally"
+run = "npm run preview"
+
+[tasks.lint]
+description = "Run TypeScript static checks"
+run = "npm run lint"
+
+[tasks.test]
+description = "Run unit tests"
+run = "npm run test"
+
+[tasks."test:e2e"]
+description = "Run Playwright browser tests"
+run = "npm run test:e2e"
 
 [tasks.openspec]
 description = "Run the OpenSpec CLI"
@@ -24,133 +49,14 @@ run = "openspec check"
 description = "Show OpenSpec CLI help"
 run = "openspec --help"
 
+[tasks."spec-check"]
+description = "Validate OpenSpec changes and specs"
+run = "npm run spec-check"
+
 [tasks.status]
 description = "Show repository status"
 run = "git status --short --branch"
 
-[tasks."spec-check"]
-description = "Validate OpenSpec changes and specs"
-run = "openspec validate --all --strict --no-interactive"
-
-[tasks."unity:doctor"]
-description = "Check Unity Hub and the pinned Unity editor install"
-run = '''
-set -eu
-UNITY_HUB_APP="/Applications/Unity Hub.app"
-UNITY_HUB_BIN="$UNITY_HUB_APP/Contents/MacOS/Unity Hub"
-UNITY_EDITOR="/Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity"
-
-echo "Expected Unity editor: $UNITY_VERSION"
-
-if [ -d "$UNITY_HUB_APP" ]; then
-  echo "Unity Hub app: $UNITY_HUB_APP"
-else
-  echo "Unity Hub app not found. Install it with: brew install --cask unity-hub"
-fi
-
-if [ -x "$UNITY_HUB_BIN" ]; then
-  echo "Unity Hub executable: $UNITY_HUB_BIN"
-else
-  echo "Unity Hub executable not found at: $UNITY_HUB_BIN"
-fi
-
-if command -v unityhub >/dev/null 2>&1; then
-  echo "Optional unityhub CLI symlink: $(command -v unityhub)"
-else
-  echo "Optional unityhub CLI symlink not found on PATH."
-  echo "Optional symlink: sudo ln -s \"$UNITY_HUB_BIN\" /usr/local/bin/unityhub"
-fi
-
-if [ -x "$UNITY_EDITOR" ]; then
-  "$UNITY_EDITOR" -version
-else
-  echo "Unity editor not found at: $UNITY_EDITOR"
-  exit 1
-fi
-'''
-
-[tasks."unity:hub:install"]
-description = "Install Unity Hub with Homebrew cask on macOS"
-confirm = "Install Unity Hub with Homebrew cask on this Mac?"
-run = '''
-set -eu
-
-if [ "$(uname -s)" != "Darwin" ]; then
-  echo "Unity Hub Homebrew cask install is only supported on macOS."
-  exit 1
-fi
-
-if [ -d "/Applications/Unity Hub.app" ]; then
-  echo "Unity Hub is already installed at /Applications/Unity Hub.app"
-  exit 0
-fi
-
-if ! command -v brew >/dev/null 2>&1; then
-  echo "Homebrew is required. Install it from https://brew.sh"
-  exit 1
-fi
-
-brew install --cask unity-hub
-'''
-
-[tasks."unity:hub:symlink"]
-description = "Create optional unityhub CLI symlink for Unity Hub"
-confirm = "Create /usr/local/bin/unityhub symlink with sudo?"
-run = '''
-set -eu
-UNITY_HUB_BIN="/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"
-
-if command -v unityhub >/dev/null 2>&1; then
-  echo "unityhub already exists at $(command -v unityhub)"
-  exit 0
-fi
-
-if [ ! -x "$UNITY_HUB_BIN" ]; then
-  echo "Unity Hub executable not found. Run: mise run unity:hub:install"
-  exit 1
-fi
-
-sudo ln -s "$UNITY_HUB_BIN" /usr/local/bin/unityhub
-'''
-
-[tasks."unity:hub:open"]
-description = "Open Unity Hub"
-run = '''
-set -eu
-if [ ! -d "/Applications/Unity Hub.app" ]; then
-  echo "Unity Hub is not installed. Run: mise run unity:hub:install"
-  exit 1
-fi
-open -a "Unity Hub"
-'''
-
-[tasks."unity:open"]
-description = "Open this project in Unity Hub"
-run = '''
-set -eu
-if [ ! -d "/Applications/Unity Hub.app" ]; then
-  echo "Unity Hub is not installed. Run: mise run unity:hub:install"
-  exit 1
-fi
-open -a "Unity Hub" .
-'''
-
-[tasks."unity:batch-check"]
-description = "Run Unity in batchmode long enough to compile and load the project"
-run = '''
-set -eu
-UNITY_EDITOR="/Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity"
-"$UNITY_EDITOR" -batchmode -nographics -projectPath "$PWD" -quit -logFile -
-'''
-
-[tasks."clean-unity-cache"]
-description = "Remove local Unity generated cache folders"
-run = "rm -rf Library Temp Obj Logs UserSettings"
-
-[tasks."clean-unity-builds"]
-description = "Remove local Unity build output folders"
-run = "rm -rf Build Builds"
-
-[tasks."clean-unity-generated"]
-description = "Alias for clean-unity-cache; build cleanup is intentionally separate"
-run = "mise run clean-unity-cache"
+[tasks.check]
+description = "Run lint, tests, build, and OpenSpec validation"
+run = "npm run check"

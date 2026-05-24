@@ -1,0 +1,8 @@
+{
+  "name": "Killbox",
+  "short_name": "Killbox",
+  "start_url": ".",
+  "display": "fullscreen",
+  "background_color": "#121418",
+  "theme_color": "#2f7a68"
+}

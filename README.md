@@ -1,74 +1,56 @@
 # Killbox
 
-Project tooling is managed with [mise](https://mise.jdx.dev/).
+Killbox is a browser-playable cooperative action tower-defense prototype. The active implementation is TypeScript, Vite, and Phaser so the first playable loop can be shared publicly, tested in a browser, and inspected by automation.
+
+A pre-pivot checkpoint is preserved by git tag:
+
+```sh
+git checkout pre-phaser-pivot
+```
 
 ## Setup
 
+Project tooling is managed with [mise](https://mise.jdx.dev/).
+
 ```sh
 mise install
+mise run install
 ```
 
-## Unity
-
-Killbox is initialized as a Unity 2D project shell for an ugly one-map cooperative action tower-defense prototype.
-
-Expected editor: Unity `6000.0.40f1`, installed through Unity Hub. `ProjectSettings/ProjectVersion.txt` is the source of truth.
-
-On macOS, install Unity Hub with Homebrew:
+## Run
 
 ```sh
-mise run unity:hub:install
-mise run unity:hub:open
+mise run dev
 ```
 
-Inside Unity Hub, sign in and install editor `6000.0.40f1`. Start with Mac Build Support; add WebGL, Android, or iOS modules later when the prototype needs them.
+Vite serves the prototype locally. The first screen is the playable Phaser arena foundation with two lanes, a merge point, one objective, eight fixed build pads, HUD state, and semantic debug state for browser automation.
 
-Open the repository root in Unity Hub:
-
-1. Add this folder as an existing project.
-2. Open scene `Assets/_Killbox/Scenes/PrototypeArena.unity`.
-3. Keep generated folders such as `Library/`, `Temp/`, `Obj/`, `Logs/`, and `UserSettings/` untracked.
-
-Unity Hub installs editors under `/Applications/Unity/Hub/Editor/`. The pinned editor executable is expected at:
-
-```text
-/Applications/Unity/Hub/Editor/6000.0.40f1/Unity.app/Contents/MacOS/Unity
-```
-
-Optional Hub CLI symlink:
+## Useful Tasks
 
 ```sh
-mise run unity:hub:symlink
+mise tasks
+mise run dev
+mise run test
+mise run build
+mise run spec-check
+mise run check
 ```
-
-The first slice intentionally contains no gameplay implementation. Architecture notes live at `Assets/_Killbox/Docs/ARCHITECTURE.md`.
 
 ## OpenSpec
 
 OpenSpec is installed by mise from the npm package `@fission-ai/openspec`.
 
 ```sh
-mise run openspec:help
 mise run openspec -- <args>
-```
-
-Current initialization change:
-
-```sh
-mise run openspec -- status --change initialize-unity-2d-project
-```
-
-## Useful Tasks
-
-```sh
-mise run status
 mise run spec-check
-mise run unity:doctor
-mise run unity:hub:install
-mise run unity:hub:open
-mise run unity:hub:symlink
-mise run unity:open
-mise run unity:batch-check
-mise run clean-unity-cache
-mise run clean-unity-builds
 ```
+
+## Browser Automation Contract
+
+The web prototype exposes semantic state for tests and coding agents through:
+
+```ts
+window.__KILLBOX_DEBUG__
+```
+
+The debug API can describe the current scene, active players, objective HP, wave state, build-pad occupancy, and supported commands. The app also mirrors coarse state onto `#app` data attributes and `#semantic-state` text for browser-level inspection.
