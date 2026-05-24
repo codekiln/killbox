@@ -69,9 +69,71 @@ else
 fi
 '''
 
+[tasks."unity:hub:install"]
+description = "Install Unity Hub with Homebrew cask on macOS"
+confirm = "Install Unity Hub with Homebrew cask on this Mac?"
+run = '''
+set -eu
+
+if [ "$(uname -s)" != "Darwin" ]; then
+  echo "Unity Hub Homebrew cask install is only supported on macOS."
+  exit 1
+fi
+
+if [ -d "/Applications/Unity Hub.app" ]; then
+  echo "Unity Hub is already installed at /Applications/Unity Hub.app"
+  exit 0
+fi
+
+if ! command -v brew >/dev/null 2>&1; then
+  echo "Homebrew is required. Install it from https://brew.sh"
+  exit 1
+fi
+
+brew install --cask unity-hub
+'''
+
+[tasks."unity:hub:symlink"]
+description = "Create optional unityhub CLI symlink for Unity Hub"
+confirm = "Create /usr/local/bin/unityhub symlink with sudo?"
+run = '''
+set -eu
+UNITY_HUB_BIN="/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"
+
+if command -v unityhub >/dev/null 2>&1; then
+  echo "unityhub already exists at $(command -v unityhub)"
+  exit 0
+fi
+
+if [ ! -x "$UNITY_HUB_BIN" ]; then
+  echo "Unity Hub executable not found. Run: mise run unity:hub:install"
+  exit 1
+fi
+
+sudo ln -s "$UNITY_HUB_BIN" /usr/local/bin/unityhub
+'''
+
+[tasks."unity:hub:open"]
+description = "Open Unity Hub"
+run = '''
+set -eu
+if [ ! -d "/Applications/Unity Hub.app" ]; then
+  echo "Unity Hub is not installed. Run: mise run unity:hub:install"
+  exit 1
+fi
+open -a "Unity Hub"
+'''
+
 [tasks."unity:open"]
 description = "Open this project in Unity Hub"
-run = 'open -a "Unity Hub" .'
+run = '''
+set -eu
+if [ ! -d "/Applications/Unity Hub.app" ]; then
+  echo "Unity Hub is not installed. Run: mise run unity:hub:install"
+  exit 1
+fi
+open -a "Unity Hub" .
+'''
 
 [tasks."unity:batch-check"]
 description = "Run Unity in batchmode long enough to compile and load the project"

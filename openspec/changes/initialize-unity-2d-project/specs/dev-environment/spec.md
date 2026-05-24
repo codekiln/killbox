@@ -23,3 +23,11 @@ The repository SHALL expose a mise task that verifies the pinned Unity editor ve
 - **GIVEN** a developer has cloned the repository
 - **WHEN** they run `mise run unity:doctor`
 - **THEN** the task SHALL check for Unity Hub CLI availability and the pinned Unity editor install
+
+### Requirement: Unity Hub installation task
+The repository SHALL expose a mise task that installs Unity Hub through Homebrew cask on macOS.
+
+#### Scenario: Developer installs Unity Hub
+- **GIVEN** a macOS developer has Homebrew installed
+- **WHEN** they run `mise run unity:hub:install`
+- **THEN** the task SHALL install Unity Hub using `brew install --cask unity-hub`

@@ -17,8 +17,8 @@ Expected editor: Unity `6000.0.40f1`, installed through Unity Hub. `ProjectSetti
 On macOS, install Unity Hub with Homebrew:
 
 ```sh
-brew install --cask unity-hub
-open -a "Unity Hub"
+mise run unity:hub:install
+mise run unity:hub:open
 ```
 
 Inside Unity Hub, sign in and install editor `6000.0.40f1`. Start with Mac Build Support; add WebGL, Android, or iOS modules later when the prototype needs them.
@@ -38,7 +38,7 @@ Unity Hub installs editors under `/Applications/Unity/Hub/Editor/`. The pinned e
 Optional Hub CLI symlink:
 
 ```sh
-sudo ln -s "/Applications/Unity Hub.app/Contents/MacOS/Unity Hub" /usr/local/bin/unityhub
+mise run unity:hub:symlink
 ```
 
 The first slice intentionally contains no gameplay implementation. Architecture notes live at `Assets/_Killbox/Docs/ARCHITECTURE.md`.
@@ -64,6 +64,9 @@ mise run openspec -- status --change initialize-unity-2d-project
 mise run status
 mise run spec-check
 mise run unity:doctor
+mise run unity:hub:install
+mise run unity:hub:open
+mise run unity:hub:symlink
 mise run unity:open
 mise run unity:batch-check
 mise run clean-unity-cache
