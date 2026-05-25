@@ -7,4 +7,4 @@
 ## 2. Validation And Archive
 
 - [x] 2.1 Run lint, unit tests, build, and OpenSpec validation.
-- [ ] 2.2 Sync the hud-and-feedback spec and archive the change with a short rationale.
+- [x] 2.2 Sync the hud-and-feedback spec and archive the change with a short rationale.
