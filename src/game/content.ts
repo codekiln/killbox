@@ -96,8 +96,8 @@ export const firstPlayableMission: MissionDefinition = {
         { x: 370, y: 112 },
         { x: 540, y: 212 },
         { x: 650, y: 350 },
-        { x: 920, y: 350 },
-        { x: 1076, y: 350 }
+        { x: 760, y: 350 },
+        { x: 830, y: 350 }
       ]
     },
     {
@@ -109,8 +109,8 @@ export const firstPlayableMission: MissionDefinition = {
         { x: 372, y: 608 },
         { x: 542, y: 488 },
         { x: 650, y: 350 },
-        { x: 920, y: 350 },
-        { x: 1076, y: 350 }
+        { x: 760, y: 350 },
+        { x: 830, y: 350 }
       ]
     }
   ],

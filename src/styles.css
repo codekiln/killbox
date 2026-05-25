@@ -64,7 +64,8 @@ body {
 
 #semantic-state {
   position: absolute;
-  right: 16px;
+  right: auto;
+  left: 210px;
   bottom: 16px;
   max-width: min(360px, calc(100vw - 32px));
   padding: 10px 12px;
@@ -84,7 +85,7 @@ body {
   }
 
   #semantic-state {
-    right: 10px;
+    left: 10px;
     bottom: 10px;
     font-size: 12px;
   }

@@ -146,7 +146,7 @@ export type GameCommand =
   | { type: "simulation:tick"; deltaMs: number };
 
 const mission = firstPlayableMission;
-const objectivePosition: Vec2 = { x: 1096, y: 350 };
+const objectivePosition: Vec2 = { x: 830, y: 350 };
 
 export function createInitialGameState(sessionId = "local-dev"): GameState {
   return {
@@ -169,14 +169,14 @@ export function createInitialGameState(sessionId = "local-dev"): GameState {
         label: "Player 1",
         connected: true,
         ready: false,
-        position: { x: 992, y: 302 }
+        position: { x: 804, y: 286 }
       },
       {
         id: "p2",
         label: "Player 2",
         connected: false,
         ready: false,
-        position: { x: 992, y: 398 }
+        position: { x: 804, y: 414 }
       }
     ],
     objective: {
