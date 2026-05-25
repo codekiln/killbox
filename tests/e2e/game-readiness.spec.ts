@@ -12,7 +12,7 @@ test("initial game is playable", async ({ page, baseURL }) => {
     throw new Error("Playwright baseURL is required for Killbox e2e verification.");
   }
 
-  await openReadyDeployment(page, baseURL);
+  await openReadyDeployment(page, resolveRouteURL(baseURL, "/play/"));
   await expect(page.locator("#game-root canvas")).toBeVisible();
 
   const description = await readDebugState(page);

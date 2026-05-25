@@ -59,7 +59,8 @@ export class PrototypeScene extends Phaser.Scene {
 
   constructor(
     private readonly getState: () => GameState,
-    private readonly dispatch: (command: GameCommand) => GameState
+    private readonly dispatch: (command: GameCommand) => GameState,
+    private readonly deploymentVersion: string
   ) {
     super("PrototypeScene");
   }
@@ -152,7 +153,7 @@ export class PrototypeScene extends Phaser.Scene {
     ]);
     this.guideText?.setText(this.guideForState(state));
     this.logText?.setText(state.messageLog.slice(0, 3).join("\n"));
-    syncDebugDom(describeGameState(state));
+    syncDebugDom(describeGameState(state, this.deploymentVersion));
   }
 
   private drawArena(): void {

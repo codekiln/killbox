@@ -55,7 +55,7 @@ export function mountKillboxGame({
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH
     },
-    scene: [new PrototypeScene(() => gameState, dispatch)]
+    scene: [new PrototypeScene(() => gameState, dispatch, deploymentVersion)]
   });
 
   return {
