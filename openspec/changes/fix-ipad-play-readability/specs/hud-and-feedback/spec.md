@@ -1,0 +1,33 @@
+## MODIFIED Requirements
+
+### Requirement: Playable mission HUD
+The HUD SHALL communicate objective HP, shared gold, wave progress, mission outcome, selected pad state, and tower choices without showing implementation-facing debug overlays by default.
+
+#### Scenario: Scene opens with HUD state
+- **GIVEN** the browser prototype is open
+- **WHEN** the scene foundation is visible
+- **THEN** objective HP, shared gold, wave, enemy count, and message log values SHALL be readable
+
+#### Scenario: HUD updates after building
+- **WHEN** the player builds a tower
+- **THEN** the HUD SHALL update shared gold and selected pad/tower information
+
+#### Scenario: HUD reflects wave enemy state
+- **GIVEN** wave 1 has spawned enemies
+- **WHEN** enemies move, leak, or finish the wave
+- **THEN** the HUD wave text and message log SHALL reflect the current enemy count, leak events, and wave completion coherently
+
+#### Scenario: Debug output is hidden by default
+- **WHEN** a player opens the Play route
+- **THEN** semantic debug details SHALL NOT appear as a visible overlay on the game surface
+
+### Requirement: Readable command panel hierarchy
+The playable mission command panel SHALL organize mission status, tower choices, wave actions, tactical hints, and recent messages so text does not overlap and controls are easy to scan.
+
+#### Scenario: Command panel is readable
+- **WHEN** the browser prototype renders the command panel at iPad landscape size
+- **THEN** mission status, build controls, wave controls, and hints SHALL appear in visually distinct areas without overlapping text
+
+#### Scenario: Tower choices remain actionable
+- **WHEN** the player inspects tower choices in the command panel
+- **THEN** each tower option SHALL show its label, cost, and role and remain clickable through the existing build command path
