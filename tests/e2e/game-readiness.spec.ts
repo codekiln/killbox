@@ -5,6 +5,8 @@ const expectedVersion = process.env.KILLBOX_EXPECTED_VERSION?.trim();
 const deploymentWaitMs = readPositiveInt("KILLBOX_DEPLOYMENT_WAIT_MS", expectedVersion ? 120_000 : 15_000);
 const deploymentPollMs = readPositiveInt("KILLBOX_DEPLOYMENT_POLL_MS", 5_000);
 
+test.setTimeout(deploymentWaitMs + 60_000);
+
 test("initial game is playable", async ({ page, baseURL }) => {
   if (!baseURL) {
     throw new Error("Playwright baseURL is required for Killbox e2e verification.");
@@ -84,7 +86,7 @@ test("Astro platform routes render canonical surfaces", async ({ page, baseURL }
   ];
 
   for (const route of routes) {
-    await page.goto(new URL(route.path, baseURL).toString(), { waitUntil: "domcontentloaded" });
+    await page.goto(resolveRouteURL(baseURL, route.path), { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: route.heading })).toBeVisible();
     await expect(page.getByText(route.text).first()).toBeVisible();
   }
@@ -153,6 +155,15 @@ async function readDebugState(page: Page): Promise<KillboxDebugState> {
 function withCacheBust(rawURL: string): string {
   const url = new URL(rawURL);
   url.searchParams.set("killbox_verify", `${Date.now()}`);
+  return url.toString();
+}
+
+function resolveRouteURL(baseURL: string, routePath: string): string {
+  const url = new URL(baseURL);
+  const basePath = url.pathname.endsWith("/") ? url.pathname : `${url.pathname}/`;
+  url.pathname = `${basePath}${routePath.replace(/^\/+/, "")}`;
+  url.search = "";
+  url.hash = "";
   return url.toString();
 }
 
