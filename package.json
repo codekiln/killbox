@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --host 127.0.0.1",
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "tsc --noEmit && astro build",
+    "preview": "astro preview --host 127.0.0.1 --port 4173",
     "lint": "tsc --noEmit --pretty false",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -14,7 +14,7 @@
     "test:e2e:local": "npm run build && playwright test",
     "test:e2e:public": "playwright test",
     "spec-check": "openspec validate --all --strict --no-interactive",
-    "check": "npm run lint && npm run test && npm run build && npm run spec-check"
+    "check": "npm run lint && npm run test && npm run build && npm run test:e2e:public && npm run spec-check"
   },
   "dependencies": {
     "phaser": "latest"
@@ -22,6 +22,7 @@
   "devDependencies": {
     "@playwright/test": "latest",
     "@types/node": "latest",
+    "astro": "^6.3.7",
     "typescript": "latest",
     "vite": "latest",
     "vitest": "latest"

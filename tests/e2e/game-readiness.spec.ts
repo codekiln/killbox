@@ -63,6 +63,33 @@ test("initial game is playable", async ({ page, baseURL }) => {
   await expect(page.locator("#semantic-state")).toContainText("Towers: 1");
 });
 
+test("Astro platform routes render canonical surfaces", async ({ page, baseURL }) => {
+  if (!baseURL) {
+    throw new Error("Playwright baseURL is required for Killbox route verification.");
+  }
+
+  await page.goto(baseURL, { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Killbox" })).toBeVisible();
+  await expect(page.getByRole("navigation").getByRole("link", { name: "Playable Build", exact: true })).toBeVisible();
+  await expect(page.locator("#game-root canvas")).toBeVisible();
+
+  const routes = [
+    { path: "/themes/", heading: "Themes", text: "Theme Manifests" },
+    { path: "/factions/", heading: "Factions", text: "Faction Previews" },
+    { path: "/design-system/", heading: "Design System", text: "Living Design System" },
+    { path: "/rendering/", heading: "Rendering", text: "Rendering Sandbox" },
+    { path: "/assets/", heading: "Asset Catalog", text: "All static content checks pass" },
+    { path: "/gameplay/", heading: "Gameplay", text: "Fixed Build Pads" },
+    { path: "/play/", heading: "Saltmarsh Crossing", text: "Playable Game Build" }
+  ];
+
+  for (const route of routes) {
+    await page.goto(new URL(route.path, baseURL).toString(), { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: route.heading })).toBeVisible();
+    await expect(page.getByText(route.text).first()).toBeVisible();
+  }
+});
+
 async function openReadyDeployment(page: Page, baseURL: string): Promise<void> {
   const deadline = Date.now() + deploymentWaitMs;
   const errors: string[] = [];

@@ -53,6 +53,8 @@ export class PrototypeScene extends Phaser.Scene {
   private guideText?: Phaser.GameObjects.Text;
   private logText?: Phaser.GameObjects.Text;
   private labelGroup?: Phaser.GameObjects.Group;
+  private stateChangeHandler?: () => void;
+  private scaleResizeHandler?: () => void;
   private tickAccumulatorMs = 0;
 
   constructor(
@@ -91,8 +93,18 @@ export class PrototypeScene extends Phaser.Scene {
     });
 
     this.renderState();
-    this.scale.on(Phaser.Scale.Events.RESIZE, () => this.renderState());
-    window.addEventListener("killbox:state-change", () => this.renderState());
+    this.scaleResizeHandler = () => this.renderState();
+    this.stateChangeHandler = () => this.renderState();
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.scaleResizeHandler);
+    window.addEventListener("killbox:state-change", this.stateChangeHandler);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.scaleResizeHandler) {
+        this.scale.off(Phaser.Scale.Events.RESIZE, this.scaleResizeHandler);
+      }
+      if (this.stateChangeHandler) {
+        window.removeEventListener("killbox:state-change", this.stateChangeHandler);
+      }
+    });
   }
 
   update(_time: number, delta: number): void {

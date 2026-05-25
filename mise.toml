@@ -10,15 +10,15 @@ node = "24"
 "npm:@fission-ai/openspec" = "latest"
 
 [tasks.install]
-description = "Install web prototype dependencies"
+description = "Install Astro platform and Phaser prototype dependencies"
 run = "npm install"
 
 [tasks.dev]
-description = "Run the Vite development server"
+description = "Run the Astro development server"
 run = "npm run dev"
 
 [tasks.build]
-description = "Build the static browser prototype"
+description = "Build the static Astro game platform"
 run = "npm run build"
 
 [tasks.preview]
@@ -66,5 +66,5 @@ description = "Show repository status"
 run = "git status --short --branch"
 
 [tasks.check]
-description = "Run lint, tests, build, and OpenSpec validation"
+description = "Run lint, tests, build, browser smoke checks, and OpenSpec validation"
 run = "npm run check"

@@ -1,4 +1,5 @@
 {
+  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "target": "ES2022",
     "useDefineForClassFields": true,
@@ -16,5 +17,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "tests", "vite.config.ts", "playwright.config.ts"]
+  "include": [".astro/types.d.ts", "src/**/*.ts", "tests/**/*.ts", "astro.config.ts", "vite.config.ts", "playwright.config.ts"],
+  "exclude": ["dist"]
 }
