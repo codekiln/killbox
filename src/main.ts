@@ -14,12 +14,14 @@ const transport = new MockSessionTransport(gameState.sessionId);
 function dispatch(command: GameCommand): GameState {
   gameState = applyGameCommand(gameState, command);
   window.dispatchEvent(new CustomEvent("killbox:state-change", { detail: command }));
-  void transport.send({
-    sessionId: gameState.sessionId,
-    playerId: "local",
-    command,
-    snapshot: structuredClone(gameState)
-  });
+  if (command.type !== "simulation:step" && command.type !== "simulation:tick") {
+    void transport.send({
+      sessionId: gameState.sessionId,
+      playerId: "local",
+      command,
+      snapshot: structuredClone(gameState)
+    });
+  }
   return gameState;
 }
 

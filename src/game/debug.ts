@@ -1,4 +1,5 @@
 import { getDeploymentVersion } from "../deployment";
+import { getMissionContent } from "./state";
 import type { GameCommand, GameState, GameStateSnapshot } from "./state";
 import { getSerializableSnapshot } from "./state";
 
@@ -6,18 +7,33 @@ export interface KillboxDebugState {
   deploymentVersion: string;
   scene: GameState["scene"];
   sessionId: string;
+  mission: {
+    id: string;
+    title: string;
+    status: string;
+    tick: number;
+    selectedPadId: string | null;
+    selectedTowerTypeId: string;
+  };
   activePlayers: number;
+  sharedGold: number;
   objectiveHp: string;
   wave: {
     index: number;
+    total: number;
     active: boolean;
+    tick: number;
     enemiesRemaining: number;
     enemiesSpawned: number;
+    enemiesDefeated: number;
     enemiesLeaked: number;
+    wavesCompleted: number;
     completed: boolean;
   };
   enemies: Array<{
     id: string;
+    typeId: string;
+    label: string;
     pathId: string;
     position: {
       x: number;
@@ -26,13 +42,37 @@ export interface KillboxDebugState {
     hp: string;
     status: string;
     progress: number;
+    traits: string[];
+  }>;
+  towers: Array<{
+    id: string;
+    typeId: string;
+    label: string;
+    padId: string;
+    damageDealt: number;
+    defeatedCount: number;
+  }>;
+  effects: Array<{
+    kind: string;
+    label: string;
   }>;
   activeEnemyCount: number;
   enemyPaths: Record<string, number>;
   buildPads: Array<{
     id: string;
+    label: string;
+    role: string;
     occupied: boolean;
+    occupiedBy: string | null;
   }>;
+  content: {
+    mapId: string;
+    towerTypes: number;
+    enemyTypes: number;
+    waves: number;
+    towerLabels: string[];
+    enemyLabels: string[];
+  };
   controls: string[];
 }
 
@@ -52,20 +92,45 @@ export function describeGameState(
   state: GameState,
   deploymentVersion = getDeploymentVersion()
 ): KillboxDebugState {
+  const content = getMissionContent();
   return {
     deploymentVersion,
     scene: state.scene,
     sessionId: state.sessionId,
+    mission: {
+      id: state.mission.id,
+      title: state.mission.title,
+      status: state.mission.status,
+      tick: state.tick,
+      selectedPadId: state.mission.selectedPadId,
+      selectedTowerTypeId: state.mission.selectedTowerTypeId
+    },
     activePlayers: state.players.filter((player) => player.connected).length,
+    sharedGold: state.sharedGold,
     objectiveHp: `${state.objective.currentHp}/${state.objective.maxHp}`,
     wave: { ...state.wave },
     enemies: state.enemies.map((enemy) => ({
       id: enemy.id,
+      typeId: enemy.typeId,
+      label: enemy.label,
       pathId: enemy.pathId,
       position: { ...enemy.position },
       hp: `${enemy.currentHp}/${enemy.maxHp}`,
       status: enemy.status,
-      progress: enemy.progress
+      progress: enemy.progress,
+      traits: [...enemy.traits]
+    })),
+    towers: state.towers.map((tower) => ({
+      id: tower.id,
+      typeId: tower.typeId,
+      label: tower.label,
+      padId: tower.padId,
+      damageDealt: tower.damageDealt,
+      defeatedCount: tower.defeatedCount
+    })),
+    effects: state.effects.map((effect) => ({
+      kind: effect.kind,
+      label: effect.label
     })),
     activeEnemyCount: state.enemies.length,
     enemyPaths: state.enemies.reduce<Record<string, number>>((counts, enemy) => {
@@ -74,9 +139,28 @@ export function describeGameState(
     }, {}),
     buildPads: state.buildPads.map((pad) => ({
       id: pad.id,
-      occupied: Boolean(pad.occupiedBy)
+      label: pad.label,
+      role: pad.role,
+      occupied: Boolean(pad.occupiedBy),
+      occupiedBy: pad.occupiedBy
     })),
-    controls: ["player:set-ready", "build-pad:toggle", "wave:set-active", "simulation:tick"]
+    content: {
+      mapId: state.contentSummary.mapId,
+      towerTypes: state.contentSummary.towerTypes,
+      enemyTypes: state.contentSummary.enemyTypes,
+      waves: state.contentSummary.waves,
+      towerLabels: content.towers.map((tower) => tower.label),
+      enemyLabels: content.enemies.map((enemy) => enemy.label)
+    },
+    controls: [
+      "player:set-ready",
+      "pad:select",
+      "tower:select-type",
+      "tower:build",
+      "wave:start",
+      "mission:restart",
+      "simulation:step"
+    ]
   };
 }
 
@@ -117,8 +201,10 @@ export function syncDebugDom(debugState: KillboxDebugState): void {
     app.dataset.killboxScene = debugState.scene;
     app.dataset.killboxSession = debugState.sessionId;
     app.dataset.killboxPlayers = String(debugState.activePlayers);
+    app.dataset.killboxMission = debugState.mission.status;
     app.dataset.killboxWave = debugState.wave.active ? "active" : "idle";
     app.dataset.killboxEnemies = String(debugState.activeEnemyCount);
+    app.dataset.killboxTowers = String(debugState.towers.length);
     app.dataset.killboxObjectiveHp = debugState.objectiveHp;
   }
 
@@ -131,20 +217,22 @@ export function syncDebugDom(debugState: KillboxDebugState): void {
     const occupied = debugState.buildPads.filter((pad) => pad.occupied).length;
     semanticState.textContent = [
       `Version: ${debugState.deploymentVersion}`,
-      `Scene: ${debugState.scene}`,
+      `Mission: ${debugState.mission.title} (${debugState.mission.status})`,
       `Players: ${debugState.activePlayers}/2`,
       `Objective: ${debugState.objectiveHp}`,
+      `Gold: ${debugState.sharedGold}`,
       `Wave: ${formatWaveState(debugState)}`,
       `Enemies: ${debugState.activeEnemyCount} active, ${debugState.wave.enemiesLeaked} leaked`,
+      `Towers: ${debugState.towers.length}`,
       `Build pads: ${occupied}/${debugState.buildPads.length}`
     ].join("\n");
   }
 }
 
 function formatWaveState(debugState: KillboxDebugState): string {
-  if (debugState.wave.completed) {
-    return `complete (${debugState.wave.enemiesRemaining})`;
+  if (debugState.mission.status === "victory" || debugState.mission.status === "defeat") {
+    return debugState.mission.status;
   }
 
-  return `${debugState.wave.active ? "active" : "idle"} (${debugState.wave.enemiesRemaining})`;
+  return `${debugState.wave.index}/${debugState.wave.total} ${debugState.wave.active ? "active" : "ready"}`;
 }

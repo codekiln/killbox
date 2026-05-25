@@ -14,12 +14,16 @@ test("initial game is playable", async ({ page, baseURL }) => {
   await expect(page.locator("#game-root canvas")).toBeVisible();
 
   const description = await readDebugState(page);
-  expect(description.scene).toBe("prototype-arena");
+  expect(description.scene).toBe("first-playable-mission");
   expect(description.activePlayers).toBeGreaterThanOrEqual(1);
-  expect(description.objectiveHp).toBe("1000/1000");
+  expect(description.objectiveHp).toBe("20/20");
+  expect(description.mission.status).toBe("ready");
   expect(description.wave.index).toBe(1);
+  expect(description.content.towerTypes).toBe(4);
+  expect(description.content.enemyTypes).toBeGreaterThanOrEqual(5);
   expect(description.buildPads).toHaveLength(8);
-  expect(description.controls).toContain("build-pad:toggle");
+  expect(description.controls).toContain("tower:build");
+  await expect(page.locator("#semantic-state")).toContainText("Mission: Saltmarsh Crossing");
 
   const commandResult = await page.evaluate(() => {
     const debug = window.__KILLBOX_DEBUG__;
@@ -32,22 +36,31 @@ test("initial game is playable", async ({ page, baseURL }) => {
       throw new Error("No build pad is available for the smoke command.");
     }
 
-    const snapshot = debug.dispatch({
-      type: "build-pad:toggle",
+    let snapshot = debug.dispatch({
+      type: "tower:build",
       padId,
-      towerType: "e2e-tower"
+      towerTypeId: "ranger-post"
     });
+    snapshot = debug.dispatch({ type: "wave:start" });
+    snapshot = debug.dispatch({ type: "simulation:step", ticks: 20 });
 
     return {
       padId,
       occupiedBy: snapshot.buildPads.find((pad) => pad.id === padId)?.occupiedBy,
-      occupiedAfter: debug.describe().buildPads.find((pad) => pad.id === padId)?.occupied
+      occupiedAfter: debug.describe().buildPads.find((pad) => pad.id === padId)?.occupied,
+      towerCount: debug.describe().towers.length,
+      enemyCount: debug.describe().activeEnemyCount,
+      waveActive: debug.describe().wave.active
     };
   });
 
-  expect(commandResult.occupiedBy).toBe("e2e-tower");
+  expect(commandResult.occupiedBy).toBe("tower-1-ranger-post");
   expect(commandResult.occupiedAfter).toBe(true);
+  expect(commandResult.towerCount).toBe(1);
+  expect(commandResult.enemyCount).toBeGreaterThan(0);
+  expect(commandResult.waveActive).toBe(true);
   await expect(page.locator("#semantic-state")).toContainText("Build pads: 1/8");
+  await expect(page.locator("#semantic-state")).toContainText("Towers: 1");
 });
 
 async function openReadyDeployment(page: Page, baseURL: string): Promise<void> {

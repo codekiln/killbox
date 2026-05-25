@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { describeGameState, installDebugApi } from "../src/game/debug";
 import { normalizeDeploymentVersion } from "../src/deployment";
+import { describeGameState, installDebugApi } from "../src/game/debug";
 import { applyGameCommand, createInitialGameState } from "../src/game/state";
 import type { GameCommand, GameState } from "../src/game/state";
 
@@ -9,42 +9,50 @@ describe("debug observability", () => {
     vi.unstubAllGlobals();
   });
 
-  it("describes semantic browser state", () => {
+  it("describes semantic browser state for the playable mission", () => {
     const description = describeGameState(createInitialGameState("debug-test"), "0.1.0+abc1234");
 
     expect(description.deploymentVersion).toBe("0.1.0+abc1234");
-    expect(description.scene).toBe("prototype-arena");
+    expect(description.scene).toBe("first-playable-mission");
     expect(description.sessionId).toBe("debug-test");
-    expect(description.objectiveHp).toBe("1000/1000");
-    expect(description.controls).toContain("build-pad:toggle");
-    expect(description.controls).toContain("simulation:tick");
+    expect(description.mission.status).toBe("ready");
+    expect(description.objectiveHp).toBe("20/20");
+    expect(description.content).toMatchObject({
+      mapId: "saltmarsh-crossing",
+      towerTypes: 4,
+      enemyTypes: 5,
+      waves: 4
+    });
+    expect(description.controls).toContain("tower:build");
+    expect(description.controls).toContain("simulation:step");
     expect(description.activeEnemyCount).toBe(0);
   });
 
   it("describes active enemy snapshots and wave lifecycle state", () => {
-    const waveStarted = applyGameCommand(createInitialGameState("enemy-debug"), {
-      type: "wave:set-active",
-      active: true
-    });
+    const waveStarted = applyGameCommand(
+      applyGameCommand(createInitialGameState("enemy-debug"), {
+        type: "wave:start"
+      }),
+      { type: "simulation:step", ticks: 16 }
+    );
     const description = describeGameState(waveStarted, "0.1.0+enemytest");
 
     expect(description.wave).toMatchObject({
       active: true,
-      enemiesRemaining: 6,
-      enemiesSpawned: 6,
+      enemiesRemaining: 5,
+      enemiesSpawned: 4,
       enemiesLeaked: 0,
       completed: false
     });
-    expect(description.activeEnemyCount).toBe(6);
-    expect(description.enemyPaths).toEqual({ A: 3, B: 3 });
+    expect(description.activeEnemyCount).toBe(4);
+    expect(description.enemyPaths).toEqual({ A: 2, B: 2 });
     expect(description.enemies[0]).toMatchObject({
-      id: "wave-1-A-01",
+      id: "wave-1-enemy-01",
+      typeId: "skitter",
       pathId: "A",
-      hp: "120/120",
-      status: "active",
-      progress: 0
+      hp: "48/48",
+      status: "active"
     });
-    expect(description.enemies[0].position).toEqual(waveStarted.paths[0].entrance);
   });
 
   it("defaults deployment metadata for local builds", () => {
@@ -85,19 +93,22 @@ describe("debug observability", () => {
     };
 
     const api = installDebugApi(() => state, dispatch, "0.1.0+domtest");
-    api.dispatch({ type: "build-pad:toggle", padId: "pad-2" });
-    api.dispatch({ type: "wave:set-active", active: true });
+    api.dispatch({ type: "tower:build", padId: "pad-2", towerTypeId: "ranger-post" });
+    api.dispatch({ type: "wave:start" });
+    api.dispatch({ type: "simulation:step", ticks: 16 });
 
     expect(fakeWindow.__KILLBOX_DEBUG__).toBe(api);
-    expect(api.getState().buildPads[1].occupiedBy).toBe("pulse-tower");
-    expect(api.getState().enemies).toHaveLength(6);
+    expect(api.getState().buildPads[1].occupiedBy).toBe("tower-1-ranger-post");
+    expect(api.getState().enemies).toHaveLength(4);
     expect(api.describe().deploymentVersion).toBe("0.1.0+domtest");
     expect(fakeApp.dataset.killboxVersion).toBe("0.1.0+domtest");
-    expect(fakeApp.dataset.killboxEnemies).toBe("6");
+    expect(fakeApp.dataset.killboxEnemies).toBe("4");
+    expect(fakeApp.dataset.killboxTowers).toBe("1");
     expect(fakeVersion.dataset.killboxVersion).toBe("0.1.0+domtest");
     expect(fakeVersion.textContent).toBe("Version 0.1.0+domtest");
     expect(fakeSemanticState.textContent).toContain("Version: 0.1.0+domtest");
-    expect(fakeSemanticState.textContent).toContain("Enemies: 6 active, 0 leaked");
+    expect(fakeSemanticState.textContent).toContain("Towers: 1");
+    expect(fakeSemanticState.textContent).toContain("Build pads: 1/8");
   });
 
   it("dispatches deterministic simulation through the debug API", () => {
@@ -108,15 +119,16 @@ describe("debug observability", () => {
     };
     const api = installDebugApi(() => state, dispatch, "0.1.0+simtest");
 
-    api.dispatch({ type: "wave:set-active", active: true });
-    const moved = api.dispatch({ type: "simulation:tick", deltaMs: 1000 });
-    const completed = api.dispatch({ type: "simulation:tick", deltaMs: 20_000 });
+    api.dispatch({ type: "tower:build", padId: "pad-2", towerTypeId: "ranger-post" });
+    api.dispatch({ type: "tower:build", padId: "pad-3", towerTypeId: "veil-spire" });
+    api.dispatch({ type: "wave:start" });
+    const moved = api.dispatch({ type: "simulation:step", ticks: 20 });
+    const completed = api.dispatch({ type: "simulation:step", ticks: 360 });
 
     expect(moved.enemies[0].progress).toBeGreaterThan(0);
-    expect(completed.enemies).toHaveLength(0);
-    expect(completed.objective.currentHp).toBe(300);
-    expect(api.describe().wave.completed).toBe(true);
+    expect(completed.wave.active).toBe(false);
+    expect(completed.wave.wavesCompleted).toBe(1);
+    expect(completed.objective.currentHp).toBeGreaterThan(0);
     expect(api.describe().activeEnemyCount).toBe(0);
-    expect(api.describe().objectiveHp).toBe("300/1000");
   });
 });

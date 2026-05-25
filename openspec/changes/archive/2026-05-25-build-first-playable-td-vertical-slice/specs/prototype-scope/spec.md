@@ -1,8 +1,5 @@
-# prototype-scope Specification
+## MODIFIED Requirements
 
-## Purpose
-Define the current one-map browser prototype scope and remote co-op testing direction.
-## Requirements
 ### Requirement: One-map vertical prototype
 The prototype SHALL contain exactly one playable mission map until the core browser co-op loop is validated.
 
