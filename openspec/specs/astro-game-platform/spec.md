@@ -41,6 +41,11 @@ The Astro site SHALL preserve visible deployment version information used by dep
 - **WHEN** a browser opens the built Astro site
 - **THEN** the page SHALL visibly show the version identifier and expose it through stable DOM state
 
+#### Scenario: Public verifier checks canonical play route
+- **GIVEN** a public GitHub Pages deployment includes a deployment version identifier
+- **WHEN** the public deployment verifier checks the playable game
+- **THEN** it SHALL open the canonical `/play/` route before comparing visible DOM state and debug API version state
+
 ### Requirement: Player-facing play route
 The playable route SHALL present itself as "Play" and avoid implementation-facing explanatory copy.
 
