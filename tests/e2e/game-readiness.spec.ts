@@ -72,7 +72,7 @@ test("Astro platform routes render canonical surfaces", async ({ page, baseURL }
 
   await page.goto(baseURL, { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "Killbox" })).toBeVisible();
-  await expect(page.getByRole("navigation").getByRole("link", { name: "Playable Build", exact: true })).toBeVisible();
+  await expect(page.getByRole("navigation").getByRole("link", { name: "Play", exact: true })).toBeVisible();
   await expect(page.locator("#game-root canvas")).toBeVisible();
 
   const routes = [
@@ -82,7 +82,7 @@ test("Astro platform routes render canonical surfaces", async ({ page, baseURL }
     { path: "/rendering/", heading: "Rendering", text: "Rendering Sandbox" },
     { path: "/assets/", heading: "Asset Catalog", text: "All static content checks pass" },
     { path: "/gameplay/", heading: "Gameplay", text: "Fixed Build Pads" },
-    { path: "/play/", heading: "Saltmarsh Crossing", text: "Playable Game Build" }
+    { path: "/play/", heading: "Play", text: "Version" }
   ];
 
   for (const route of routes) {

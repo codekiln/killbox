@@ -3,14 +3,12 @@ import GameSurface from "../components/GameSurface.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="Killbox Playable Build" description="Embedded Phaser playable prototype for Killbox.">
-  <section class="compact-page">
-    <div class="section-frame page-title">
-      <p class="eyebrow">Playable Game Build</p>
-      <h1>Saltmarsh Crossing</h1>
-      <p class="lede">The current Phaser vertical slice remains browser-playable inside the Astro platform.</p>
+<BaseLayout title="Play Killbox" description="Play Killbox in the browser." shellClass="play-shell">
+  <section class="compact-page play-page">
+    <div class="section-frame page-title play-title">
+      <h1>Play</h1>
     </div>
-    <div class="section-frame">
+    <div class="section-frame play-frame">
       <GameSurface />
     </div>
   </section>

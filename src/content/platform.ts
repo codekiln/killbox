@@ -83,7 +83,7 @@ export interface GameplayMechanicDoc {
 export const platformRoutes: PlatformRoute[] = [
   {
     href: "/play/",
-    label: "Playable Build",
+    label: "Play",
     summary: "Embedded Phaser prototype with debug-state automation.",
     surface: "play"
   },
