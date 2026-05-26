@@ -42,7 +42,7 @@ const panel = {
   x: 906,
   y: 92,
   width: 340,
-  height: 552,
+  height: 584,
   inset: 18,
   contentWidth: 304
 };
@@ -286,7 +286,7 @@ export class PrototypeScene extends Phaser.Scene {
 
   private drawPlayers(players: GameState["players"]): void {
     const graphics = this.requireGraphics();
-    for (const player of players) {
+    for (const player of players.filter((candidate) => candidate.connected)) {
       graphics.fillStyle(player.id === "p1" ? 0x7ed7ff : 0xb88cff, player.connected ? 0.9 : 0.28);
       graphics.fillCircle(player.position.x, player.position.y, 18);
       this.addLabel(player.position.x - 8, player.position.y - 7, player.id.toUpperCase(), 11, "#101410");
@@ -318,9 +318,9 @@ export class PrototypeScene extends Phaser.Scene {
     const graphics = this.requireGraphics();
     const content = getMissionContent();
     const x = panel.x + panel.inset;
-    let y = 224;
+    let y = 218;
     this.addLabel(x, y - 24, "Build Towers", 15, colors.text);
-    this.addLabel(x + 114, y - 22, "select pad, then choose", 12, colors.mutedText);
+    this.addLabel(x + 122, y - 20, "select pad, then choose", 11, colors.mutedText);
 
     for (const tower of content.towers) {
       const selected = state.mission.selectedTowerTypeId === tower.id;
@@ -328,15 +328,15 @@ export class PrototypeScene extends Phaser.Scene {
       const color = towerColors[tower.id];
       graphics.fillStyle(selected ? color : colors.panel, selected ? 0.32 : 0.92);
       graphics.lineStyle(2, canAfford ? color : 0x59625c, selected ? 1 : 0.72);
-      graphics.fillRoundedRect(x, y, panel.contentWidth, 42, 6);
-      graphics.strokeRoundedRect(x, y, panel.contentWidth, 42, 6);
+      graphics.fillRoundedRect(x, y, panel.contentWidth, 40, 6);
+      graphics.strokeRoundedRect(x, y, panel.contentWidth, 40, 6);
       graphics.fillStyle(color, canAfford ? 1 : 0.35);
-      graphics.fillCircle(x + 20, y + 21, 9);
-      this.addLabel(x + 40, y + 6, tower.label, 13, canAfford ? colors.text : colors.mutedText);
-      this.addLabel(x + 218, y + 6, `${tower.cost}g`, 13, canAfford ? colors.text : colors.mutedText);
-      this.addLabel(x + 40, y + 24, tower.role, 11, colors.mutedText);
+      graphics.fillCircle(x + 20, y + 20, 9);
+      this.addLabel(x + 40, y + 5, tower.label, 12, canAfford ? colors.text : colors.mutedText);
+      this.addLabel(x + 230, y + 5, `${tower.cost}g`, 12, canAfford ? colors.text : colors.mutedText);
+      this.addLabel(x + 40, y + 22, tower.role, 10, colors.mutedText);
 
-      const hit = this.add.zone(x + panel.contentWidth / 2, y + 21, panel.contentWidth, 42).setInteractive({ cursor: "pointer" });
+      const hit = this.add.zone(x + panel.contentWidth / 2, y + 20, panel.contentWidth, 40).setInteractive({ cursor: "pointer" });
       hit.on("pointerdown", () => {
         this.dispatch({ type: "tower:select-type", towerTypeId: tower.id });
         const selectedPadId = this.getState().mission.selectedPadId;
@@ -346,19 +346,19 @@ export class PrototypeScene extends Phaser.Scene {
         this.renderState();
       });
       this.labelGroup?.add(hit);
-      y += 50;
+      y += 48;
     }
   }
 
   private drawWaveControls(state: GameState): void {
     const graphics = this.requireGraphics();
     const x = panel.x + panel.inset;
-    const y = 424;
+    const y = 434;
     const canStart = !state.wave.active && state.mission.status !== "victory" && state.mission.status !== "defeat";
-    this.addLabel(x, y - 22, "Wave Actions", 15, colors.text);
-    this.drawButton(x, y, 144, 40, canStart ? "Start Wave" : "Wave Active", canStart);
+    this.addLabel(x, y - 24, "Wave Actions", 15, colors.text);
+    this.drawButton(x, y, 144, 36, canStart ? "Start Wave" : "Wave Active", canStart);
     if (canStart) {
-      const hit = this.add.zone(x + 72, y + 20, 144, 40).setInteractive({ cursor: "pointer" });
+      const hit = this.add.zone(x + 72, y + 18, 144, 36).setInteractive({ cursor: "pointer" });
       hit.on("pointerdown", () => {
         this.dispatch({ type: "wave:start" });
         this.renderState();
@@ -366,8 +366,8 @@ export class PrototypeScene extends Phaser.Scene {
       this.labelGroup?.add(hit);
     }
 
-    this.drawButton(x + 160, y, 144, 40, "Restart", true);
-    const restart = this.add.zone(x + 232, y + 20, 144, 40).setInteractive({ cursor: "pointer" });
+    this.drawButton(x + 160, y, 144, 36, "Restart", true);
+    const restart = this.add.zone(x + 232, y + 18, 144, 36).setInteractive({ cursor: "pointer" });
     restart.on("pointerdown", () => {
       this.dispatch({ type: "mission:restart" });
       this.renderState();
@@ -376,18 +376,18 @@ export class PrototypeScene extends Phaser.Scene {
 
     graphics.fillStyle(0x14221f, 0.94);
     graphics.lineStyle(1, colors.merge, 0.55);
-    graphics.fillRoundedRect(x, y + 56, panel.contentWidth, 70, 6);
-    graphics.strokeRoundedRect(x, y + 56, panel.contentWidth, 70, 6);
-    this.addLabel(x + 12, y + 67, "Plan", 12, "#f0cf68");
-    this.addLabel(x + 54, y + 67, "Cover a bend, then the merge.", 12, colors.text);
-    this.addLabel(x + 12, y + 89, "Veil Spires punish armored pressure.", 12, colors.mutedText);
-    this.addLabel(x + 12, y + 108, "Blockers buy time near chokepoints.", 12, colors.mutedText);
+    graphics.fillRoundedRect(x, y + 50, panel.contentWidth, 66, 6);
+    graphics.strokeRoundedRect(x, y + 50, panel.contentWidth, 66, 6);
+    this.addLabel(x + 12, y + 60, "Plan", 11, "#f0cf68");
+    this.addLabel(x + 54, y + 60, "Cover a bend, then the merge.", 11, colors.text);
+    this.addLabel(x + 12, y + 80, "Veil Spires punish armored pressure.", 11, colors.mutedText);
+    this.addLabel(x + 12, y + 98, "Blockers buy time near chokepoints.", 11, colors.mutedText);
 
-    this.addLabel(x, y + 146, "Recent", 13, colors.text);
+    this.addLabel(x, y + 132, "Recent", 13, colors.text);
     graphics.fillStyle(0x101817, 0.72);
     graphics.lineStyle(1, colors.panelStroke, 0.14);
-    graphics.fillRoundedRect(x, y + 166, panel.contentWidth, 50, 6);
-    graphics.strokeRoundedRect(x, y + 166, panel.contentWidth, 50, 6);
+    graphics.fillRoundedRect(x, y + 150, panel.contentWidth, 46, 6);
+    graphics.strokeRoundedRect(x, y + 150, panel.contentWidth, 46, 6);
   }
 
   private drawOutcome(state: GameState): void {
@@ -414,7 +414,7 @@ export class PrototypeScene extends Phaser.Scene {
     graphics.lineStyle(2, colors.panelStroke, enabled ? 0.82 : 0.35);
     graphics.fillRoundedRect(x, y, width, height, 6);
     graphics.strokeRoundedRect(x, y, width, height, 6);
-    this.addLabel(x + 15, y + 12, label, 14, enabled ? colors.text : colors.mutedText);
+    this.addLabel(x + 15, y + Math.max(9, height / 2 - 8), label, 13, enabled ? colors.text : colors.mutedText);
   }
 
   private drawLabels(): void {

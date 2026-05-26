@@ -461,20 +461,7 @@ h3 {
 }
 
 #semantic-state {
-  position: absolute;
-  left: 210px;
-  bottom: 16px;
-  z-index: 1;
-  max-width: min(360px, calc(100vw - 32px));
-  padding: 10px 12px;
-  border: 1px solid rgba(245, 240, 223, 0.24);
-  border-radius: 8px;
-  background: rgba(18, 20, 24, 0.78);
-  color: var(--bone);
-  font-size: 13px;
-  line-height: 1.35;
-  white-space: pre-line;
-  pointer-events: none;
+  display: none;
 }
 
 .compact-page {
@@ -536,15 +523,10 @@ h3 {
     min-height: 320px;
   }
 
-  #semantic-state,
   #deployment-version {
     left: 10px;
     bottom: 10px;
     font-size: 12px;
-  }
-
-  #semantic-state {
-    display: none;
   }
 
   .token-row,

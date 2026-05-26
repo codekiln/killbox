@@ -17,7 +17,7 @@ test("initial game is playable", async ({ page, baseURL }) => {
 
   const description = await readDebugState(page);
   expect(description.scene).toBe("first-playable-mission");
-  expect(description.activePlayers).toBeGreaterThanOrEqual(1);
+  expect(description.activePlayers).toBe(1);
   expect(description.objectiveHp).toBe("20/20");
   expect(description.mission.status).toBe("ready");
   expect(description.wave.index).toBe(1);
@@ -26,6 +26,13 @@ test("initial game is playable", async ({ page, baseURL }) => {
   expect(description.buildPads).toHaveLength(8);
   expect(description.controls).toContain("tower:build");
   await expect(page.locator("#semantic-state")).toContainText("Mission: Saltmarsh Crossing");
+  await expect(page.locator("#semantic-state")).not.toBeVisible();
+
+  const playerState = await page.evaluate(() => window.__KILLBOX_DEBUG__?.getState().players);
+  expect(playerState).toEqual([
+    expect.objectContaining({ id: "p1", connected: true }),
+    expect.objectContaining({ id: "p2", connected: false })
+  ]);
 
   const commandResult = await page.evaluate(() => {
     const debug = window.__KILLBOX_DEBUG__;
