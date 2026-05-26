@@ -4,7 +4,7 @@
 Define the prototype HUD and readability feedback required before final art exists.
 ## Requirements
 ### Requirement: Playable mission HUD
-The HUD SHALL communicate objective HP, shared gold, wave progress, mission outcome, selected pad state, and tower choices.
+The HUD SHALL communicate objective HP, shared gold, wave progress, mission outcome, selected pad state, and tower choices without showing implementation-facing debug overlays by default.
 
 #### Scenario: Scene opens with HUD state
 - **GIVEN** the browser prototype is open
@@ -19,6 +19,10 @@ The HUD SHALL communicate objective HP, shared gold, wave progress, mission outc
 - **GIVEN** wave 1 has spawned enemies
 - **WHEN** enemies move, leak, or finish the wave
 - **THEN** the HUD wave text and message log SHALL reflect the current enemy count, leak events, and wave completion coherently
+
+#### Scenario: Debug output is hidden by default
+- **WHEN** a player opens the Play route
+- **THEN** semantic debug details SHALL NOT appear as a visible overlay on the game surface
 
 ### Requirement: Scene readability labels
 The prototype scene SHALL include labels or debug-style placeholders that explain the arena layout without final art.
@@ -39,7 +43,7 @@ The scene SHALL show clear prototype feedback for tower ranges, attacks, splash 
 The playable mission command panel SHALL organize mission status, tower choices, wave actions, tactical hints, and recent messages so text does not overlap and controls are easy to scan.
 
 #### Scenario: Command panel is readable
-- **WHEN** the browser prototype renders the command panel
+- **WHEN** the browser prototype renders the command panel at iPad landscape size
 - **THEN** mission status, build controls, wave controls, and hints SHALL appear in visually distinct areas without overlapping text
 
 #### Scenario: Tower choices remain actionable
