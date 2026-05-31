@@ -10,12 +10,14 @@ git checkout pre-phaser-pivot
 
 ## Setup
 
-Project tooling is managed with [mise](https://mise.jdx.dev/).
+Project tooling is managed with [mise](https://mise.jdx.dev/). The repository follows a stable/LTS-first toolchain policy: Node stays on the current supported major line in `mise.toml`, Aube is the preferred npm-compatible package manager, and `mise.lock` records exact resolved tool versions.
 
 ```sh
 mise install
 mise run install
 ```
+
+The normal task path uses Aube through mise. npm remains a fallback for local environment diagnosis, and Python is not part of this project toolchain.
 
 ## Run
 
@@ -52,14 +54,14 @@ mise run check
 For GitHub Pages compatibility, the Astro base path is selected with `GITHUB_PAGES=true`:
 
 ```sh
-GITHUB_PAGES=true npm run build
+GITHUB_PAGES=true mise run build
 ```
 
-GitHub Actions builds the Astro static output into `dist/`, deploys it to GitHub Pages, and then runs Playwright against the published URL using the expected deployment version.
+GitHub Actions installs the mise-managed toolchain, uses Aube for deterministic dependency installation and script execution, builds the Astro static output into `dist/`, deploys it to GitHub Pages, and then runs Playwright against the published URL using the expected deployment version.
 
 ## Reference Docs
 
-Shared Killbox terminology lives in the markdown reference docs at [docs/reference](docs/reference/README.md). Use the [glossary](docs/reference/glossary.md) for canonical definitions of recurring game and development terms.
+Shared Killbox terminology lives in the markdown reference docs at [docs/reference](docs/reference/README.md). Use the [glossary](docs/reference/glossary.md) for canonical definitions of recurring game and development terms, and the [toolchain policy](docs/reference/toolchain.md) for mise, Aube, Node, and GitHub Actions expectations.
 
 The current architecture keeps Astro presentation, deterministic simulation, and Phaser rendering separated:
 

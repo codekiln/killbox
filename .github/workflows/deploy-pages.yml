@@ -21,16 +21,13 @@ jobs:
       deployment_version: ${{ steps.version.outputs.deployment_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
+      - name: Setup mise toolchain
+        uses: jdx/mise-action@v4
 
       - name: Install dependencies
-        run: npm ci
+        run: aube ci
 
       - name: Compute deployment version
         id: version
@@ -42,18 +39,18 @@ jobs:
           echo "Deployment version: ${deployment_version}"
 
       - name: Build
-        run: npm run build
+        run: aube run build
         env:
           GITHUB_PAGES: "true"
           VITE_KILLBOX_DEPLOY_VERSION: ${{ steps.version.outputs.deployment_version }}
 
       - name: Configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           enablement: true
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
@@ -68,29 +65,26 @@ jobs:
     steps:
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   verify:
     runs-on: ubuntu-latest
     needs: [build, deploy]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
+      - name: Setup mise toolchain
+        uses: jdx/mise-action@v4
 
       - name: Install dependencies
-        run: npm ci
+        run: aube ci
 
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        run: aube exec playwright install --with-deps chromium
 
       - name: Verify public Pages deployment
-        run: npm run test:e2e:public
+        run: aube run test:e2e:public
         env:
           KILLBOX_PUBLIC_BASE_URL: ${{ needs.deploy.outputs.page_url }}
           KILLBOX_EXPECTED_VERSION: ${{ needs.build.outputs.deployment_version }}
